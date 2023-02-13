@@ -9,10 +9,14 @@ const dbConnect = require("./db/dbConnect");
 const User = require("./db/userModel");
 const auth = require("./auth");
 var MongoClient = require('mongodb').MongoClient;
+const compression = require("compression");
+const helmet = require("helmet");
 var uri = "mongodb+srv://userDatabaseAccess:Pass1234@projisaacv1.mvtrtak.mongodb.net/isaac?retryWrites=true&w=majority";
 
 // execute database connection
 dbConnect();
+app.use(helmet());
+app.use(compression());
 
 // Curb Cores Error by adding a header here
 app.use((req, res, next) => {
