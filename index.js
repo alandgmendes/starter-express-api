@@ -4,4 +4,12 @@ app.all('/', (req, res) => {
     console.log("Just got a request!")
     res.send('Yo!')
 })
-app.listen(process.env.PORT || 3000)
+
+app.all('/arara', (req, res) => {
+    console.log("Just got a request!")
+    res.send('arara!!')
+})
+
+
+app.listen(process.env.PORT || 8000)
+console.log('listening on port 8000 se pá');
