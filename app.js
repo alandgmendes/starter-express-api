@@ -51,17 +51,10 @@ app.get("/user/:email", (request, response, next) => {
 });
 
 app.get("/testendpoint", (request, response, next) => {
-  User.findOne({ email: request.params.email }).then((user) =>{
-      response.json({id: `${user.email}`});
+ 
+      response.json({"message": APP_TEST});
       next();
-    }
-  ).catch((e) => {
-    console.log(e)
-    response.status(400).send({
-      message: APP_TEST,
-      error: e
-    });
-  })
+  
 });
 
 app.get("/convenio/?municipio=:municipio&orgao=:orgao&cnpj=:cnpj", async(request, response, next) => {
