@@ -52,7 +52,7 @@ app.get("/user/:email", (request, response, next) => {
 
 app.get("/testendpoint", (request, response, next) => {
  
-      response.json({"message": proccess.env.CYCLIC_URL});
+      response.json({"message": process.env.CYCLIC_URL});
       next();
   
 });
