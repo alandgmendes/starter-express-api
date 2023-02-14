@@ -52,7 +52,7 @@ app.get("/user/:email", (request, response, next) => {
 
 app.get("/testendpoint", (request, response, next) => {
  
-      response.json({"message": APP_TEST});
+      response.json({"message": CYCLIC_URL});
       next();
   
 });
