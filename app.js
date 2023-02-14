@@ -11,7 +11,7 @@ const auth = require("./auth");
 var MongoClient = require('mongodb').MongoClient;
 const compression = require("compression");
 const helmet = require("helmet");
-var uri = "mongodb+srv://userDatabaseAccess:Pass1234@projisaacv1.mvtrtak.mongodb.net/isaac?retryWrites=true&w=majority";
+var uri = process.env.APP_URI_MONGODB;
 
 // execute database connection
 dbConnect();
