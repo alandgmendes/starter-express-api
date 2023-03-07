@@ -53,7 +53,8 @@ app.get("/user/:email", (request, response, next) => {
 
 app.get("/testendpoint", (request, response, next) => {
   
-  response.json({"message": process.env.CYCLIC_URL});
+  response.json({"app_url": process.env.CYCLIC_URL,
+                 "mongo_url": process.env.APP_URI_MONGODB});
   next();
   
 });
