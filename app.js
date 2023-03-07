@@ -12,7 +12,7 @@ var MongoClient = require('mongodb').MongoClient;
 const compression = require("compression");
 const helmet = require("helmet");
 
-var uri = "mongodb://projisaacv1:Pass1234@ac-3mwtfc9-shard-00-00.mvtrtak.mongodb.net:27017,ac-3mwtfc9-shard-00-01.mvtrtak.mongodb.net:27017,ac-3mwtfc9-shard-00-02.mvtrtak.mongodb.net:27017/?ssl=true&replicaSet=atlas-13p760-shard-0&authSource=admin&retryWrites=true&w=majority";
+var uri = process.env.APP_URI_MONGODB;
 
 // execute database connection
 dbConnect();
