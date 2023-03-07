@@ -1,6 +1,9 @@
 const http = require('http');
 const app = require('./app');
 
+const uri = process.env.MONGO_CONNECTION_STRING;
+const client = new MongoClient(uri);
+
 const normalizePort = val => {
   const port = parseInt(val, 10);
 
@@ -37,11 +40,12 @@ const errorHandler = error => {
 
 const server = http.createServer(app);
 
-server.on('error', errorHandler);
-server.on('listening', () => {
-  const address = server.address();
-  const bind = typeof address === 'string' ? 'pipe ' + address : 'port ' + port;
-  console.log('Listening on ' + bind);
+client.connect(err => {
+  if(err){ console.error(err); return false;}
+  // connection to mongo is successful, listen for requests
+  app.listen(port, () => {
+      console.log("listening for requests");
+  })
 });
 
 server.listen(port);
