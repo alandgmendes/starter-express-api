@@ -3,7 +3,7 @@ const app = express();
 const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-
+const cors = require('cors')
 // require database connection
 const dbConnect = require("./db/dbConnect");
 const User = require("./db/userModel");
@@ -18,6 +18,8 @@ var uri = process.env.APP_URI_MONGODB;
 dbConnect();
 app.use(helmet());
 app.use(compression());
+app.use(cors())
+
 
 // Curb Cores Error by adding a header here
 app.use((req, res, next) => {
