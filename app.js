@@ -11,7 +11,8 @@ const auth = require("./auth");
 var MongoClient = require('mongodb').MongoClient;
 const compression = require("compression");
 const helmet = require("helmet");
-var uri = "mongodb+srv://userDatabaseAccess:Pass1234@projisaacv1.mvtrtak.mongodb.net/isaac?retryWrites=true&w=majority";
+
+var uri = "mongodb://projisaacv1:Pass1234@ac-3mwtfc9-shard-00-00.mvtrtak.mongodb.net:27017,ac-3mwtfc9-shard-00-01.mvtrtak.mongodb.net:27017,ac-3mwtfc9-shard-00-02.mvtrtak.mongodb.net:27017/?ssl=true&replicaSet=atlas-13p760-shard-0&authSource=admin&retryWrites=true&w=majority";
 
 // execute database connection
 dbConnect();
@@ -52,8 +53,8 @@ app.get("/user/:email", (request, response, next) => {
 
 app.get("/testendpoint", (request, response, next) => {
   
-      response.json({"message": 'live and loud'});
-      next();
+  response.json({"message": process.env.CYCLIC_URL});
+  next();
   
 });
 
