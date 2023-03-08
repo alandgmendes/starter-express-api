@@ -1,5 +1,4 @@
 const http = require('http');
-var MongoClient = require('mongodb').MongoClient;
 const app = require('./app');
 
 
@@ -40,12 +39,11 @@ const errorHandler = error => {
 
 const server = http.createServer(app);
 
-client.connect(err => {
-  if(err){ console.error(err); return false;}
+
   // connection to mongo is successful, listen for requests
   app.listen(port, () => {
       console.log("listening for requests");
-  })
-});
+  });
+
 
 server.listen(port);
