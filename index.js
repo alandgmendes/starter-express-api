@@ -41,10 +41,6 @@ const server = http.createServer(app);
 
 
   // connection to mongo is successful, listen for requests
-  app.listen(port, () => {
-      console.log("listening for requests");
-  });
 
-  console.log('ME LEVA DEUS E DA DEPLOY NISOOO')
 
 server.listen(port);
