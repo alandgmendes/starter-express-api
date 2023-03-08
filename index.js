@@ -45,5 +45,6 @@ const server = http.createServer(app);
       console.log("listening for requests");
   });
 
+  console.log('ME LEVA DEUS E DA DEPLOY NISOOO')
 
 server.listen(port);
