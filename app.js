@@ -10,13 +10,11 @@ const User = require("./db/userModel");
 const auth = require("./auth");
 var MongoClient = require('mongodb').MongoClient;
 const compression = require("compression");
-const helmet = require("helmet");
 
 var uri = process.env.APP_URI_MONGODB;
 
 // execute database connection
 dbConnect();
-app.use(helmet());
 app.use(compression());
 app.use(cors())
 

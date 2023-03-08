@@ -1,4 +1,5 @@
 const http = require('http');
+var MongoClient = require('mongodb').MongoClient;
 const app = require('./app');
 
 const uri = process.env.MONGO_CONNECTION_STRING;
