@@ -40,7 +40,5 @@ const errorHandler = error => {
 const server = http.createServer(app);
 
 
-  // connection to mongo is successful, listen for requests
-
-
 server.listen(port);
+console.log('listening on port  ' + port);

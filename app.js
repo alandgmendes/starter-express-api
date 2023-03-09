@@ -10,6 +10,11 @@ const User = require("./db/userModel");
 const auth = require("./auth");
 var MongoClient = require('mongodb').MongoClient;
 const compression = require("compression");
+require('dotenv').config();
+console.log(process.env.APP_URI_MONGODB)
+
+
+
 
 var uri = process.env.APP_URI_MONGODB;
 
@@ -59,10 +64,13 @@ app.get("/testendpoint", (request, response, next) => {
   
 });
 
-app.get("/convenio/?municipio=:municipio&orgao=:orgao&cnpj=:cnpj", async(request, response, next) => {
+app.get("/convenio/:municipio/:cnpj/:orgao", async(request, response, next) => {
   
-  let reqParams = request.params
-  var query = {$and: [{ CodigoConvenente: parseInt(reqParams.cnpj) }, {CodigoSiafiMunicipio : parseInt(reqParams.municipio)}, {CondigoOrgaoConcedente: parseInt(reqParams.orgao)}]};
+  let reqParams = request.params;
+  console.log(reqParams);
+  var query = {$and: [{ CodigoConvenente: parseInt(reqParams.cnpj) }, 
+    {CodigoSiafiMunicipio : parseInt(reqParams.municipio)}, 
+    {CondigoOrgaoConcedente: parseInt(reqParams.orgao)}]};
   var data = []  
   MongoClient.connect(uri, async function(err, client) {
     if(err){
@@ -70,8 +78,10 @@ app.get("/convenio/?municipio=:municipio&orgao=:orgao&cnpj=:cnpj", async(request
       next();
     }
     var collection = client.db("isaac").collection("convenios").find(query);
+    
     var documentArray = await collection.toArray();
     data = documentArray;
+    console.log(documentArray);
     response.json({ data: data });
     client.close();
     next();  
