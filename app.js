@@ -88,15 +88,17 @@ app.get("/convenio/:municipio/:cnpj/:orgao", async(request, response, next) => {
   });
 });
 
-app.get("/programa/?anodisponibilizacao=:ano&situacao=:situacao&codorgao=:codorgao&id=:id&uf=:uf&qualificacaoProponente=:qualificacaoProponente", async(request, response, next) => {
+app.get("/programa/:ano/:situacao/:uf/:orgao", async(request, response, next) => {
   
-  let reqParams = request.params
-  console.log('this')
+  let reqParams = request.params;
+  console.log(reqParams);
   var query = {$and: [{ AnoDisponibilizacao: parseInt(reqParams.ano) || 0 }, 
                       { SitPrograma: reqParams.situacao }, 
-                      {UfPrograma: reqParams.uf}]};
-  var data = []
-  console.log(query)
+                      {UfPrograma: reqParams.uf},
+                      {CodOrgaoSupPrograma: parseInt(reqParams.orgao)}
+                    ]};
+  var data = [];
+  console.log(query);
   MongoClient.connect(uri, async function(err, client) {
     if(err){
       console.log(err);      
@@ -105,7 +107,7 @@ app.get("/programa/?anodisponibilizacao=:ano&situacao=:situacao&codorgao=:codorg
     var collection = client.db("isaac").collection("programas").find(query);
     var documentArray = await collection.toArray();
     data = documentArray;
-    console.log('this')
+    console.log('this');
     response.json({ data: data });
     next(); 
     client.close();     
