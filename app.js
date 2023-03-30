@@ -12,9 +12,6 @@ const auth = require("./auth");
 var MongoClient = require('mongodb').MongoClient;
 const compression = require("compression");
 require('dotenv').config();
-console.log(process.env.APP_URI_MONGODB)
-
-
 
 
 var uri = process.env.APP_URI_MONGODB;
