@@ -7,11 +7,13 @@ const cors = require('cors')
 // require database connection
 const dbConnect = require("./db/dbConnect");
 const User = require("./db/userModel");
-const Point = require("./db/pointModel");
 const auth = require("./auth");
 var MongoClient = require('mongodb').MongoClient;
 const compression = require("compression");
 require('dotenv').config();
+console.log(process.env.APP_URI_MONGODB)
+
+
 
 
 var uri = process.env.APP_URI_MONGODB;
@@ -20,9 +22,6 @@ var uri = process.env.APP_URI_MONGODB;
 dbConnect();
 app.use(compression());
 app.use(cors())
-app.use(bodyParser.json({limit: '50mb', extended: true}));
-app.use(bodyParser.urlencoded({limit: "50mb", extended: true, parameterLimit:50000}));
-app.use(bodyParser.text({ limit: '200mb' }));
 
 
 // Curb Cores Error by adding a header here
@@ -65,18 +64,53 @@ app.get("/testendpoint", (request, response, next) => {
   
 });
 
-
-app.get("/pontos", async(request, response, next) => {
+app.get("/convenio/:municipio/:cnpj/:orgao", async(request, response, next) => {
   
-  var points = [];
-  console.log('started antes do mongo');
-  Point.find()
-    .then((result) => {
-      points = result;
-      response.json({ points });
+  let reqParams = request.params;
+  console.log(reqParams);
+  var query = {$and: [{ CodigoConvenente: parseInt(reqParams.cnpj) }, 
+    {CodigoSiafiMunicipio : parseInt(reqParams.municipio)}, 
+    {CondigoOrgaoConcedente: parseInt(reqParams.orgao)}]};
+  var data = []  
+  MongoClient.connect(uri, async function(err, client) {
+    if(err){
+      console.log(err);      
       next();
-    });
+      client.close(); 
+    }
+    var collection = client.db("isaac").collection("convenios").find(query);
     
+    var documentArray = await collection.toArray();
+    data = documentArray;
+    console.log(documentArray);
+    response.json({ data: data });
+    client.close();
+    next();  
+  });
+});
+
+app.get("/programa/:ano/:situacao/:uf/:orgao", async(request, response, next) => {
+  
+  let reqParams = request.params;
+  var query = {$and: [{ AnoDisponibilizacao: parseInt(reqParams.ano) || 0 }, 
+                      { SitPrograma: reqParams.situacao }, 
+                      {UfPrograma: reqParams.uf},
+                      {CodOrgaoSupPrograma: parseInt(reqParams.orgao)}
+                    ]};
+  var data = [];
+  MongoClient.connect(uri, async function(err, client) {
+    if(err){
+      response.json({ error: err });      
+      next();
+      client.close(); 
+    }
+    var collection = client.db("isaac").collection("programas").find(query);
+    var documentArray = await collection.toArray();
+    data = documentArray;
+    response.json({ data: data });
+    next(); 
+    client.close();     
+  });
 });
 
 
@@ -129,28 +163,6 @@ app.post("/register", (request, response) => {
     });
 });
 
-app.post("/createpoint", (request, response) => {
-  
-  
-      const point = new Point({
-        author: request.body.author,
-        datetime: request.body.datetime,
-        base64img: request.body.base64img,
-        obs: request.body.obs,
-        lat: request.body.lat,
-        long: request.body.long
-      });
-       point
-         .save()
-        .then((result) => {
-           response.status(201).send({
-             message: "Point Created Successfully",
-             result: result.author,
-           });
-         });
-    
-});
-
 // login endpoint
 app.post("/login", (request, response) => {
   // check if email exists
@@ -172,7 +184,7 @@ app.post("/login", (request, response) => {
               error,
             });
           }
-          
+
           //   create JWT token
           const token = jwt.sign(
             {
@@ -182,6 +194,7 @@ app.post("/login", (request, response) => {
             "RANDOM-TOKEN",
             { expiresIn: "24h" }
           );
+
           //   return success response
           response.status(200).send({
             message: "Login Successful",
@@ -199,7 +212,6 @@ app.post("/login", (request, response) => {
     })
     // catch error if email does not exist
     .catch((e) => {
-      console.log('email n encontrado');
       response.status(404).send({
         message: "Email not found",
         e,
