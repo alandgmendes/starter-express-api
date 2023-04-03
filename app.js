@@ -89,13 +89,12 @@ app.get("/convenio/:municipio/:cnpj/:orgao", async(request, response, next) => {
   });
 });
 
-app.get("/programa/:ano/:situacao/:uf/:orgao", async(request, response, next) => {
+app.get("/programa/:ano/:situacao/:uf/", async(request, response, next) => {
   
   let reqParams = request.params;
   var query = {$and: [{ AnoDisponibilizacao: parseInt(reqParams.ano) || 0 }, 
                       { SitPrograma: reqParams.situacao }, 
-                      {UfPrograma: reqParams.uf},
-                      {CodOrgaoSupPrograma: parseInt(reqParams.orgao)}
+                      {UfPrograma: reqParams.uf}
                     ]};
   var data = [];
   MongoClient.connect(uri, async function(err, client) {
