@@ -11,7 +11,7 @@ const auth = require("./auth");
 var MongoClient = require('mongodb').MongoClient;
 const compression = require("compression");
 require('dotenv').config();
-console.log(process.env.APP_URI_MONGODB)
+const cron = require("node-cron");
 
 
 
@@ -227,5 +227,7 @@ app.get("/free-endpoint", (request, response) => {
 app.get("/auth-endpoint", auth, (request, response) => {
   response.send({ message: "Meu nome eh arara" });
 });
+
+cron.schedule("* * * * *", () => console.log("Executando a tarefa a cada 1 minuto"));
 
 module.exports = app;
