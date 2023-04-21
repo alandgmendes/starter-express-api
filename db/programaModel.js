@@ -53,7 +53,7 @@ const ProgramaSchema = new mongoose.Schema({
     },
 
     AnoDisponibilizacao: {
-        type: String,
+        type: Number,
     },
 
     DataDisponibilizacao: {
