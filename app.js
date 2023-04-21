@@ -15,7 +15,6 @@ var MongoClient = require('mongodb').MongoClient;
 const compression = require("compression");
 require('dotenv').config();
 const cron = require("node-cron");
-const dfd = require("danfojs-node")
 
 
 
@@ -314,22 +313,6 @@ app.get('/emendas', (req, res) => {
     });
 });
 
-
-app.get('/emendas/describe', (request, response) => {
-  dfd.readCSV("./assets/emendas.csv") //assumes file is in CWD
-  .then(async(df) => {
-    const results = df.describe();
-    console.log(results);
-    const itens = Object.entries(results);
-    console.log(itens);
-    response.status(200).send({
-      data: itens,
-    });
-
-  }).catch(err=>{
-     response.json(err);
-  })
-});
 
 
 
