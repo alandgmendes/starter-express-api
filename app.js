@@ -102,6 +102,7 @@ app.get("/programas/:ano/:situacao/:uf/", async(request, response, next) => {
   var data = [];
   let situacao = reqParams.situacao.toUpperCase();
   let uf = reqParams.uf.toUpperCase();
+  console.log(reqParams);
 
   const dataInicial = request.query.dataInicial; // string no formato dd/mm/aaaa
   const dataFinal = request.query.dataFinal; // string no formato dd/mm/aaa
@@ -110,7 +111,7 @@ app.get("/programas/:ano/:situacao/:uf/", async(request, response, next) => {
   Program.find({ UfPrograma: uf, 
                  AnoDisponibilizacao: anoQuery,
                  SitPrograma: situacao
-                }).limit(10).then((programs) =>{
+                }).limit(30).then((programs) =>{
       console.log(programs);
       data = programs;
       console.log(data)
@@ -270,42 +271,25 @@ app.get("/auth-endpoint", auth, (request, response) => {
 // Define the route
 app.get('/emendas', (req, res) => {
   const results = [];
+  console.log(req.query);
   fs.createReadStream('./assets/emendas.csv')
     .pipe(csv())
     .on('data', (data) => {
+      console.log(data.ano);
+      console.log(data.cidade);
       // Filter by year, city, and function
       if (
-        (!req.query.ano || data.ano === req.query.ano) &&
-        (!req.query.cidade || data.cidade === req.query.cidade) &&
-        (!req.query.funcao || data.funcao === req.query.funcao)
-      ) {
-        // Filter by value ranges
-        const valorEmpenhado = parseFloat(data.valorEmpenhado.replace(',', '.'));
-        const valorLiquidado = parseFloat(data.valorLiquidado.replace(',', '.'));
-        const valorPago = parseFloat(data.valorPago.replace(',', '.'));
-        const valorRestoInscrito = parseFloat(data.valorRestoInscrito.replace(',', '.'));
-        const valorRestoCancelado = parseFloat(data.valorRestoCancelado.replace(',', '.'));
-        const valorRestoPago = parseFloat(data.valorRestoPago.replace(',', '.'));
-        if (
-          (!req.query.valorEmpenhadoMin || valorEmpenhado >= req.query.valorEmpenhadoMin) &&
-          (!req.query.valorEmpenhadoMax || valorEmpenhado <= req.query.valorEmpenhadoMax) &&
-          (!req.query.valorLiquidadoMin || valorLiquidado >= req.query.valorLiquidadoMin) &&
-          (!req.query.valorLiquidadoMax || valorLiquidado <= req.query.valorLiquidadoMax) &&
-          (!req.query.valorPagoMin || valorPago >= req.query.valorPagoMin) &&
-          (!req.query.valorPagoMax || valorPago <= req.query.valorPagoMax) &&
-          (!req.query.valorRestoInscritoMin || valorRestoInscrito >= req.query.valorRestoInscritoMin) &&
-          (!req.query.valorRestoInscritoMax || valorRestoInscrito <= req.query.valorRestoInscritoMax) &&
-          (!req.query.valorRestoCanceladoMin || valorRestoCancelado >= req.query.valorRestoCanceladoMin) &&
-          (!req.query.valorRestoCanceladoMax || valorRestoCancelado <= req.query.valorRestoCanceladoMax) &&
-          (!req.query.valorRestoPagoMin || valorRestoPago >= req.query.valorRestoPagoMin) &&
-          (!req.query.valorRestoPagoMax || valorRestoPago <= req.query.valorRestoPagoMax)
-        ) {
+        (!req.query.ano || data.ano == req.query.ano) &&
+        (!req.query.cidade || data.cidade == req.query.cidade) 
+      )
+      {
+          console.log(data);
           results.push(data);
         }
-      }
+      
     })
     .on('end', () => {
-      res.json(results);
+      res.send(results);
     })
     .on('error', (err) => {
       console.error(err);
