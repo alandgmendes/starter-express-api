@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-// user schema
+// program schema
 const ProgramaSchema = new mongoose.Schema({
     
     
@@ -87,4 +87,4 @@ const ProgramaSchema = new mongoose.Schema({
     });
 
 // export programaSchema
-module.exports = mongoose.model.Programas || mongoose.model("Programas", ProgramaSchema);
+module.exports = mongoose.model.programas || mongoose.model("programas", ProgramaSchema);

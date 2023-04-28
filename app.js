@@ -108,13 +108,11 @@ app.get("/programas/:ano/:situacao/:uf/", async(request, response, next) => {
   const dataFinal = request.query.dataFinal; // string no formato dd/mm/aaa
   console.log('data inicial: ' + dataInicial);
   console.log('data dataFinal: ' + dataFinal);
-  Program.find({ UfPrograma: uf, 
-                 AnoDisponibilizacao: anoQuery,
-                 SitPrograma: situacao
-                }).limit(30).then((programs) =>{
-      console.log(programs);
+  Program.find({ UF_PROGRAMA: uf, 
+                 ANO_DISPONIBILIZACAO: anoQuery,
+                 SIT_PROGRAMA: situacao
+                }).limit(1000).then((programs) =>{
       data = programs;
-      console.log(data)
       response.json({ data: data});
       next();
     }
