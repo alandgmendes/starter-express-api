@@ -1,4 +1,5 @@
 const express = require("express");
+const axios = require('axios');
 const app = express();
 const csv = require('csv-parser');
 const fs = require('fs');
@@ -15,6 +16,9 @@ var MongoClient = require('mongodb').MongoClient;
 const compression = require("compression");
 require('dotenv').config();
 const cron = require("node-cron");
+const AdmZip = require('adm-zip');
+const http = require('https');
+const csvParser = require('csv-parser');
 
 
 
@@ -76,7 +80,9 @@ app.get("/convenio/:municipio/:cnpj/:orgao", async(request, response, next) => {
   var query = {$and: [{ CodigoConvenente: parseInt(reqParams.cnpj) }, 
     {CodigoSiafiMunicipio : parseInt(reqParams.municipio)}, 
     {CondigoOrgaoConcedente: parseInt(reqParams.orgao)}]};
-  var data = []  
+  var data = [] 
+  console.log(query);
+  console.log(uri);
   MongoClient.connect(uri, async function(err, client) {
     if(err){
       console.log(err);      
@@ -123,6 +129,126 @@ app.get("/programas/:ano/:situacao/:uf/", async(request, response, next) => {
       error: e
     });
   });
+});
+
+app.post("/programa/update", async(request, response, next) =>{
+//
+const optionsLocaleString = { 
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hour12: false,
+  timeZone: 'America/Sao_Paulo'
+};
+const fileUrl = 'https://repositorio.dados.gov.br/seges/detru/siconv_programa.csv.zip';
+const filePath = 'file.csv';
+const urlGov = "https://repositorio.dados.gov.br/seges/detru/siconv_programa.csv.zip";
+const fetchFile = async (url, filePath) => {
+  let now = new Date();
+  let formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+  console.log(`${formattedDate}: - started fetching`);
+  const response = await axios.get(url, { responseType: 'arraybuffer' });
+  now = new Date();
+  formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+  console.log(`${formattedDate}: - finished fetching`);
+  now = new Date();   
+  formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+  console.log(`${formattedDate}: - started writing`); 
+  fs.writeFileSync(filePath, response.data);
+  now = new Date();
+  formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+  console.log(`${formattedDate}: - finished writing`);
+};
+
+// Function to extract the contents of the zip file and return the path to the extracted CSV file
+const extractZipFile = (zipFilePath, destinationPath) => {
+  const zip = new AdmZip(zipFilePath);
+  now = new Date();
+  formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+  console.log(`${formattedDate}: - started extracting`);
+  zip.extractAllTo(destinationPath, true);
+  now = new Date();
+  formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+  console.log(`${formattedDate}: - finished extracting`);
+  // Assuming there's only one file in the zip and it's a CSV file
+  const extractedFilePath = `${destinationPath}/${zip.getEntries()[0].entryName}`;
+  return extractedFilePath;
+};
+
+// Function to read the CSV file and convert it into a bidimensional array
+const processCSVFile = async (filePath) => {
+  const dataArray = [];
+
+  return new Promise((resolve, reject) => {
+    const stream = fs.createReadStream(filePath);
+    const parser = csvParser({ delimiter: ';' });
+
+    now = new Date();
+    formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+    console.log(`${formattedDate}: - started converting`);
+
+    stream
+      .pipe(parser)
+      .on('data', (data) => {
+        const valuesArray = Object.values(data)[0].split(';');
+        dataArray.push(valuesArray);
+      })
+      .on('end', () => {
+        resolve(dataArray);
+        now = new Date();
+        formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+        console.log(`${formattedDate}: - successful conversion`);
+      })
+      .on('error', (error) => {
+        reject(error);
+        now = new Date();
+        formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+        console.log(`${formattedDate}: - error in conversion`);
+      });
+  });
+};
+// Usage example
+const zipFilePath = 'file.zip';
+const destinationPath = 'extracted';
+
+fetchFile(fileUrl, zipFilePath)
+  .then(() => {
+    const extractedFilePath = extractZipFile(zipFilePath, destinationPath);
+    return processCSVFile(extractedFilePath);
+  })
+  .then((bidimensionalArray) => {
+    // Perform operations on the bidimensional array
+    console.log(bidimensionalArray.length);
+    response.json({ "total programs size": bidimensionalArray.length});
+    try{
+      fs.rmSync("file.csv", {
+        force: true,
+      });
+      now = new Date();
+      formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+      console.log(`${formattedDate}: - file.csv deleted`);
+    } catch(e){
+      console.log(e);
+    }
+    try{
+      fs.rmSync("file.zip", {
+        force: true,
+      });
+      now = new Date();
+      formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+      console.log(`${formattedDate}: - file.zip deleted`);
+    } catch(e){
+      console.log(e);
+    }
+    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+  })
+  .catch((error) => {
+    console.error('An error occurred:', error);
+  }); 
+  
 });
 
 app.get("/programa/:ano/:situacao/:uf", async (request, response, next) => {

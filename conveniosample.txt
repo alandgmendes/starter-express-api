@@ -1,0 +1,52 @@
+
+_id
+637a3dbc1d5382b1511d8f49
+NumeroConvenio
+104141
+UF
+"SP"
+CodigoSiafiMunicipio
+6689
+NomeMunicipio
+"MAUA"
+SituacaoConvenio
+"CONCLUIDO"
+NumeroOriginal
+"2467/94/FAE"
+NumeroProcessoConvenio
+"23096.001.118/94-83"
+ObjetoConvenio
+"CONVENIO CELEBRADO ENTRE A FAE E A PM DE MAUA/SP PARA ATENDER PROGRAMA…"
+CodigoOrgaoSuperior
+26000
+NomeOrgaoSuperior
+"Ministerio da Educacao"
+CondigoOrgaoConcedente
+26298
+NomeOrgaoConcedente
+"Fundo Nacional de Desenvolvimento da Educacao"
+CondigoUgConcedente
+153173
+NomeUgConcedente
+"FUNDO NACIONAL DE DESENVOLVIMENTO DA EDUCACAO"
+CodigoConvenente
+46522959000198
+TipoConvenente
+"Administracao Publica Municipal"
+NomeConvenente
+"MUNICIPIO DE MAUA"
+TipoEnteConvenente
+"Municipal"
+TipoInstrumento
+"CONVENIO"
+ValorConvenio
+"2110457,00"
+ValorLiberado
+"2054267,71"
+DataPublicacao
+"28/03/1996"
+DataInicioVigencia
+"28/02/1996"
+DataFinalVigencia
+"28/02/1999"
+
