@@ -162,6 +162,7 @@ const fetchAndProcessCSV = async (url) => {
     for (const entry of zipEntries) {
       console.log(entry.entryName.endsWith('.csv'));
       if (entry.entryName.endsWith('.csv')) {
+        console.log('vai rodar csvData = zip.readAsText(entry);')
         csvData = zip.readAsText(entry);
         console.log('achou csv');
         break;
@@ -175,7 +176,7 @@ const fetchAndProcessCSV = async (url) => {
 
     const rows = csvData.split('\n');
     const dataArray = rows.map((row) => row.split(';'));
-
+    console.log(rows);
     // Perform operations on the bidimensional array
     console.log(dataArray);
     return dataArray;
