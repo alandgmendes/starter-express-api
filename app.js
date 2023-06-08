@@ -172,6 +172,8 @@ async function fetchAndProcessCSV(url) {
       if (entry.entryName.endsWith('.csv')) {
         const entryData = await entry.getData();
         if (entryData) {
+          console.log('entry data');
+          console.log(entryData);
           console.log(`${formattedDate}: - finished parsing, turning to string`);
           csvData = entryData.toString('utf8');
               
