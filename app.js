@@ -133,64 +133,64 @@ app.get("/programas/:ano/:situacao/:uf/", async(request, response, next) => {
 });
 
 app.post("/programa/update", async(request, response, next) =>{
-//
-const optionsLocaleString = { 
-  year: 'numeric',
-  month: '2-digit',
-  day: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-  second: '2-digit',
-  hour12: false,
-  timeZone: 'America/Sao_Paulo'
-};
 const fileUrl = 'https://repositorio.dados.gov.br/seges/detru/siconv_programa.csv.zip';
-const filePath = 'file.csv';
-const fetchAndProcessCSV = async (url) => {
+async function fetchAndProcessCSV(url) {
   try {
     const response = await fetch(url);
     if (!response.ok) {
-      console.log(`Failed to fetch the file. Status: ${response.status}`)
-      throw new Error(`Failed to fetch the file. Status: ${response.status}`);
+      throw new Error(`Failed to fetch URL: ${response.status} ${response.statusText}`);
     }
-    console.log(`fecth successful`)
-    const zipBuffer = await response.buffer();
-    const zip = new AdmZip(zipBuffer);
+
+    const buffer = await response.buffer();
+    const zip = new AdmZip(buffer);
     const zipEntries = zip.getEntries();
-    
+
     let csvData;
     for (const entry of zipEntries) {
-      console.log(entry);
       if (entry.entryName.endsWith('.csv')) {
-        console.log('vai rodar csvData = zip.readAsText(entry);')
-        csvData = zip.readAsText(entry);
-        console.log('achou csv');
-        break;
+        const entryData = await entry.getData();
+        if (entryData) {
+          csvData = entryData.toString('utf8');
+          break;
+        }
       }
     }
 
     if (!csvData) {
-      console.log('No CSV file found inside the zip archive');
       throw new Error('No CSV file found inside the zip archive');
     }
-
-    const rows = csvData.split('\n');
-    const dataArray = rows.map((row) => row.split(';'));
-    console.log(rows);
-    // Perform operations on the bidimensional array
-    console.log(dataArray);
-    return dataArray;
+    function parseCSV(csvString) {
+      const rows = csvString.trim().split('\n');
+      const result = [];
+      
+      for (const row of rows) {
+        const columns = row.split(';');
+        result.push(columns);
+      }
+      
+      return result;
+    }
+    const data = parseCSV(csvData);
+    return data;
+    // Perform further processing with the CSV data...
   } catch (error) {
-    console.error('An error occurred:', error);
-    throw error;
+    console.error('An error occurred:', error.message);
   }
-};
+}
 
 // Example usage
 const url = 'https://example.com/file.zip';
 fetchAndProcessCSV(fileUrl)
   .then((dataArray) => {
-    console.log(dataArray);
+    for (let i = 0; i < 3; i++){
+      console.log(dataArray[i][7]);
+    }
+    progs2023 = dataArray.filter(item => item[7] == '2023');
+    console.log(progs2023.length);
+    response.status(200).send({
+      'quantidade': progs2023.length
+    });
+    next();
     // Perform further operations on the bidimensional array
   })
   .catch((error) => {
