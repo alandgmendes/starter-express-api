@@ -19,6 +19,7 @@ const cron = require("node-cron");
 const AdmZip = require('adm-zip');
 const http = require('https');
 const csvParser = require('csv-parser');
+const fetch = require('isomorphic-fetch');
 
 
 
@@ -145,105 +146,47 @@ const optionsLocaleString = {
 };
 const fileUrl = 'https://repositorio.dados.gov.br/seges/detru/siconv_programa.csv.zip';
 const filePath = 'file.csv';
-const urlGov = "https://repositorio.dados.gov.br/seges/detru/siconv_programa.csv.zip";
-const fetchFile = async (url, filePath) => {
-  let now = new Date();
-  let formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
-  console.log(`${formattedDate}: - started fetching`);
-  const response = await axios.get(url, { responseType: 'arraybuffer' });
-  now = new Date();
-  formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
-  console.log(`${formattedDate}: - finished fetching`);
-  now = new Date();   
-  formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
-  console.log(`${formattedDate}: - started writing`); 
-  fs.writeFileSync(filePath, response.data);
-  now = new Date();
-  formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
-  console.log(`${formattedDate}: - finished writing`);
-};
+const fetchAndProcessCSV = async (url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch the file. Status: ${response.status}`);
+    }
 
-// Function to extract the contents of the zip file and return the path to the extracted CSV file
-const extractZipFile = (zipFilePath, destinationPath) => {
-  const zip = new AdmZip(zipFilePath);
-  now = new Date();
-  formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
-  console.log(`${formattedDate}: - started extracting`);
-  zip.extractAllTo(destinationPath, true);
-  now = new Date();
-  formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
-  console.log(`${formattedDate}: - finished extracting`);
-  // Assuming there's only one file in the zip and it's a CSV file
-  const extractedFilePath = `${destinationPath}/${zip.getEntries()[0].entryName}`;
-  return extractedFilePath;
-};
+    const zipBuffer = await response.buffer();
+    const zip = new AdmZip(zipBuffer);
+    const zipEntries = zip.getEntries();
+    
+    let csvData;
+    for (const entry of zipEntries) {
+      if (entry.entryName.endsWith('.csv')) {
+        csvData = zip.readAsText(entry);
+        break;
+      }
+    }
 
-// Function to read the CSV file and convert it into a bidimensional array
-const processCSVFile = async (filePath) => {
-  const dataArray = [];
+    if (!csvData) {
+      throw new Error('No CSV file found inside the zip archive');
+    }
 
-  return new Promise((resolve, reject) => {
-    const stream = fs.createReadStream(filePath);
-    const parser = csvParser({ delimiter: ';' });
+    const rows = csvData.split('\n');
+    const dataArray = rows.map((row) => row.split(';'));
 
-    now = new Date();
-    formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
-    console.log(`${formattedDate}: - started converting`);
-
-    stream
-      .pipe(parser)
-      .on('data', (data) => {
-        const valuesArray = Object.values(data)[0].split(';');
-        dataArray.push(valuesArray);
-      })
-      .on('end', () => {
-        resolve(dataArray);
-        now = new Date();
-        formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
-        console.log(`${formattedDate}: - successful conversion`);
-      })
-      .on('error', (error) => {
-        reject(error);
-        now = new Date();
-        formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
-        console.log(`${formattedDate}: - error in conversion`);
-      });
-  });
-};
-// Usage example
-const zipFilePath = 'file.zip';
-const destinationPath = 'extracted';
-
-fetchFile(fileUrl, zipFilePath)
-  .then(() => {
-    const extractedFilePath = extractZipFile(zipFilePath, destinationPath);
-    return processCSVFile(extractedFilePath);
-  })
-  .then((bidimensionalArray) => {
     // Perform operations on the bidimensional array
-    console.log(bidimensionalArray.length);
-    response.json({ "total programs size": bidimensionalArray.length});
-    try{
-      fs.rmSync("file.csv", {
-        force: true,
-      });
-      now = new Date();
-      formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
-      console.log(`${formattedDate}: - file.csv deleted`);
-    } catch(e){
-      console.log(e);
-    }
-    try{
-      fs.rmSync("file.zip", {
-        force: true,
-      });
-      now = new Date();
-      formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
-      console.log(`${formattedDate}: - file.zip deleted`);
-    } catch(e){
-      console.log(e);
-    }
-    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
+
+    return dataArray;
+  } catch (error) {
+    console.error('An error occurred:', error);
+    throw error;
+  }
+};
+
+// Example usage
+const url = 'https://example.com/file.zip';
+fetchAndProcessCSV(fileUrl)
+  .then((dataArray) => {
+    console.log(dataArray);
+    // Perform further operations on the bidimensional array
   })
   .catch((error) => {
     console.error('An error occurred:', error);
