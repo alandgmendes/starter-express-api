@@ -103,7 +103,7 @@ app.get("/convenio/:municipio/:cnpj/:orgao", async(request, response, next) => {
 });
 
 app.get("/programas/:ano/:situacao/:uf/", async(request, response, next) => {
-  
+
   let reqParams = request.params;
   var anoQuery =  parseInt(reqParams.ano);
   var data = [];
@@ -133,24 +133,51 @@ app.get("/programas/:ano/:situacao/:uf/", async(request, response, next) => {
 });
 
 app.post("/programa/update", async(request, response, next) =>{
+  const optionsLocaleString = { 
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    timeZone: 'America/Sao_Paulo'
+  };
 const fileUrl = 'https://repositorio.dados.gov.br/seges/detru/siconv_programa.csv.zip';
 async function fetchAndProcessCSV(url) {
   try {
+    let now = new Date();
+    let formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+    console.log(`${formattedDate}: - started fetching gov`);
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(`Failed to fetch URL: ${response.status} ${response.statusText}`);
-    }
-
+    }    
+    now = new Date();
+    formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+    console.log(`${formattedDate}: - finished fetching`);
+    console.log(`${formattedDate}: - generating buffer`);
     const buffer = await response.buffer();
     const zip = new AdmZip(buffer);
-    const zipEntries = zip.getEntries();
+    const zipEntries = zip.getEntries();    
+    now = new Date();
+    formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+    console.log(`${formattedDate}: - finished buffer`);
 
+    now = new Date();
+    formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+    console.log(`${formattedDate}: - started parsing from buffer`);
     let csvData;
     for (const entry of zipEntries) {
       if (entry.entryName.endsWith('.csv')) {
         const entryData = await entry.getData();
         if (entryData) {
+          console.log(`${formattedDate}: - finished parsing, turning to string`);
           csvData = entryData.toString('utf8');
+              
+          now = new Date();
+          formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+          console.log(`${formattedDate}: - finished string`);
           break;
         }
       }
@@ -160,14 +187,19 @@ async function fetchAndProcessCSV(url) {
       throw new Error('No CSV file found inside the zip archive');
     }
     function parseCSV(csvString) {
+      now = new Date();
+      formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+      console.log(`${formattedDate}: - started generating arrays`);
       const rows = csvString.trim().split('\n');
       const result = [];
       
       for (const row of rows) {
         const columns = row.split(';');
         result.push(columns);
-      }
-      
+      }      
+      now = new Date();
+      formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+      console.log(`${formattedDate}: - finished generating arrays`);
       return result;
     }
     const data = parseCSV(csvData);
