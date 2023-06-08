@@ -150,9 +150,10 @@ const fetchAndProcessCSV = async (url) => {
   try {
     const response = await fetch(url);
     if (!response.ok) {
+      console.log(`Failed to fetch the file. Status: ${response.status}`)
       throw new Error(`Failed to fetch the file. Status: ${response.status}`);
     }
-
+    console.log(`fecth successful`)
     const zipBuffer = await response.buffer();
     const zip = new AdmZip(zipBuffer);
     const zipEntries = zip.getEntries();
@@ -161,11 +162,13 @@ const fetchAndProcessCSV = async (url) => {
     for (const entry of zipEntries) {
       if (entry.entryName.endsWith('.csv')) {
         csvData = zip.readAsText(entry);
+        console.log('achou csv');
         break;
       }
     }
 
     if (!csvData) {
+      console.log('No CSV file found inside the zip archive');
       throw new Error('No CSV file found inside the zip archive');
     }
 
@@ -173,7 +176,7 @@ const fetchAndProcessCSV = async (url) => {
     const dataArray = rows.map((row) => row.split(';'));
 
     // Perform operations on the bidimensional array
-
+    console.log(dataArray);
     return dataArray;
   } catch (error) {
     console.error('An error occurred:', error);
