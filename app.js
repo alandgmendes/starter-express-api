@@ -160,7 +160,7 @@ const fetchAndProcessCSV = async (url) => {
     
     let csvData;
     for (const entry of zipEntries) {
-      console.log(entry.entryName.endsWith('.csv'));
+      console.log(entry);
       if (entry.entryName.endsWith('.csv')) {
         console.log('vai rodar csvData = zip.readAsText(entry);')
         csvData = zip.readAsText(entry);
