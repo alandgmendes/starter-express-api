@@ -157,13 +157,34 @@ async function fetchAndProcessCSV(url) {
     formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
     console.log(`${formattedDate}: - finished fetching`);
     console.log(`${formattedDate}: - generating buffer`);
-    const buffer = await response.buffer();
+    let buffer = await response.buffer();
     const zip = new AdmZip(buffer);
     const zipEntries = zip.getEntries();    
     now = new Date();
     formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
     console.log(`${formattedDate}: - finished buffer`);
 
+    //buffertest
+    function sliceBufferToString(buffer, start, end) {
+      const slicedBuffer = buffer.slice(start, end);
+      return slicedBuffer.toString();
+    }
+    
+    function sliceAndRejoinBuffer(buffer, chunkSize) {
+      const slicedParts = [];
+      const totalChunks = Math.ceil(buffer.length / chunkSize);
+    
+      for (let i = 0; i < totalChunks; i++) {
+        const start = i * chunkSize;
+        const end = start + chunkSize;
+        const slicedString = sliceBufferToString(buffer, start, end);
+        slicedParts.push(slicedString);
+      }
+    
+      return slicedParts.join('');
+    }
+
+    //buffertest
     now = new Date();
     formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
     console.log(`${formattedDate}: - started parsing from buffer`);
@@ -173,6 +194,9 @@ async function fetchAndProcessCSV(url) {
         const entryData = await entry.getData();
         if (entryData) {
           console.log('entry data');
+          const chunkSize = 1024; 
+          const rejoinString = sliceAndRejoinBuffer(entryData, chunkSize);
+          console.log(rejoinString);
           console.log(entryData);
           console.log(`${formattedDate}: - finished parsing, turning to string`);
           csvData = entryData.toString('utf8');
