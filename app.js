@@ -204,9 +204,10 @@ async function fetchAndProcessCSV(url) {
       }
     }
     console.log('csv data');
-    console.log(csvData);
+    console.log(csvData.length);
     function parseCSV(csvString) {
       now = new Date();
+      console.log(`csvsting size: ${csvString.length}`);
       formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
       console.log(`${formattedDate}: - started generating arrays`);
       const rows = csvString.trim().split('\n');
