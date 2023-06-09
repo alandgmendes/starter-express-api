@@ -210,6 +210,30 @@ async function fetchAndProcessCSV(url) {
       console.log(`csvsting size: ${csvString.length}`);
       formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
       console.log(`${formattedDate}: - started generating arrays`);
+      //split test
+      function splitStringByDelimiter(string, delimiter) {
+        const chunks = [];
+        let startIndex = 0;
+        let endIndex = string.indexOf(delimiter);
+      
+        while (endIndex !== -1) {
+          chunks.push(string.slice(startIndex, endIndex));
+          startIndex = endIndex + 1;
+          endIndex = string.indexOf(delimiter, startIndex);
+        }
+      
+        if (startIndex < string.length) {
+          chunks.push(string.slice(startIndex));
+        }      
+        return chunks;
+      }
+      
+      const longString = "Your very long string here...";
+      const delimiter = ";";
+      
+      const stringChunks = splitStringByDelimiter(longString, delimiter);
+      //
+      console.log(`stringchunks size: {${stringChunks.length}}`);
       const rows = csvString.split('\n');
       console.log(`rows size: ${rows.length}`);
       const result = [];
