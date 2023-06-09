@@ -212,13 +212,16 @@ async function fetchAndProcessCSV(url) {
       function splitStringByDelimiter(string, delimiter) {
         const chunks = [];
         let startIndex = 0;
-        console.log(`string size to split 1st: ${string}`);
+        console.log(`string size to split 1st: ${string.length}`);
         let endIndex = string.indexOf(delimiter);
         console.log('entered splitter function');
-        while (endIndex !== -1) {
+        while (endIndex !== -1) {          
           chunks.push(string.slice(startIndex, endIndex));
           startIndex = endIndex + 1;
           endIndex = string.indexOf(delimiter, startIndex);
+          if((endIndex > 2)&&( endIndex < 4)){
+            console.log(string.slice(startIndex, endIndex));
+          }
         }
         
         
