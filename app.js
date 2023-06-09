@@ -214,7 +214,7 @@ async function fetchAndProcessCSV(url) {
         let startIndex = 0;
         console.log(`string size to split 1st: ${string.length}`);
         console.log(string.indexOf(delimiter));
-        console.log('delimiter prestou?');
+        console.log('delimiter worked?');
         let endIndex = string.indexOf(delimiter);
         console.log('entered splitter function');
         while (endIndex !== -1) {          
