@@ -183,10 +183,8 @@ async function fetchAndProcessCSV(url) {
             const end = (i + 1) * chunkSize;
             const chunk = entryData.slice(start, end);
             csvData += chunk.toString('utf-8');
-            console.log(csvData);
-            console.log(`chunck ${i} de 1024`);
           }
-    
+          console.log(`tamanho csv: ${csvData.length}`);
           console.log(`${formattedDate}: - finished parsing, turning to string`);
           now = new Date();
           formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
