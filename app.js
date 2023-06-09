@@ -213,6 +213,8 @@ async function fetchAndProcessCSV(url) {
         const chunks = [];
         let startIndex = 0;
         console.log(`string size to split 1st: ${string.length}`);
+        console.log(string.indexOf(delimiter));
+        console.log('delimiter prestou?');
         let endIndex = string.indexOf(delimiter);
         console.log('entered splitter function');
         while (endIndex !== -1) {          
@@ -234,7 +236,7 @@ async function fetchAndProcessCSV(url) {
       }
       
       const longString = "Your very long string here...";
-      const delimiter = "t";
+      const delimiter = "\n";
       console.log(`csvsting size to function: ${csvString.length}`);
       const stringChunks = splitStringByDelimiter(csvString, delimiter);
       //
