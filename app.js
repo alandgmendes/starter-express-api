@@ -20,6 +20,7 @@ const AdmZip = require('adm-zip');
 const http = require('https');
 const csvParser = require('csv-parser');
 const fetch = require('isomorphic-fetch');
+const { SlowBuffer } = require("buffer");
 
 
 
@@ -143,22 +144,32 @@ app.post("/programa/update", async(request, response, next) =>{
     hour12: false,
     timeZone: 'America/Sao_Paulo'
   };
-const fileUrl = 'https://repositorio.dados.gov.br/seges/detru/siconv_programa.csv.zip';
+  const fileUrl = 'https://repositorio.dados.gov.br/seges/detru/siconv_programa.csv.zip';
 async function fetchAndProcessCSV(url) {
   try {
     let now = new Date();
     let formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
     console.log(`${formattedDate}: - started fetching gov`);
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Failed to fetch URL: ${response.status} ${response.statusText}`);
-    }    
+    let buff; 
+    await axios.get(fileUrl, {
+      responseType: 'arraybuffer'
+    })
+      .then((response) => {
+        console.log(response);
+        buff = response.data;
+        // You can now use the buffer for further processing or operations
+      })
+      .catch((error) => {
+        console.error('An error occurred while fetching the file:', error);
+      });
+      console.log(buff);
+      console.log('buffereder');
+      console.log('>>>>>>>>>>>>>>>');
     now = new Date();
     formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
     console.log(`${formattedDate}: - finished fetching`);
     console.log(`${formattedDate}: - generating buffer`);
-    let buffer = await response.buffer();
-    const zip = new AdmZip(buffer);
+    const zip = new AdmZip(buff);
     const zipEntries = zip.getEntries();    
     now = new Date();
     formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
@@ -176,7 +187,6 @@ async function fetchAndProcessCSV(url) {
           console.log('entry data');
           const chunkSize = 1024;
           const totalChunks = Math.ceil(entryData.length / chunkSize);
-          let csvData = '';
     
           for (let i = 0; i < totalChunks; i++) {
             const start = i * chunkSize;
@@ -193,10 +203,7 @@ async function fetchAndProcessCSV(url) {
         }
       }
     }
-    console.log(`tamanho csv: ${csvData.length}`);
-    if (!csvData) {
-      throw new Error('No CSV file found inside the zip archive');
-    }
+    
     function parseCSV(csvString) {
       now = new Date();
       formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
@@ -223,15 +230,27 @@ async function fetchAndProcessCSV(url) {
 
 fetchAndProcessCSV(fileUrl)
   .then((dataArray) => {
-    for (let i = 0; i < 3; i++){
-      console.log(dataArray[i][7]);
+    if(dataArray){
+      if(dataArray.length> 0){
+
+        progs2023 = dataArray.filter(item => item[7] == '2023');
+        console.log(progs2023.length);
+        response.status(200).send({
+          'quantidade': progs2023.length
+        });
+        next();
+      }else{
+        response.status(200).send({
+          'quantidade': progs2023.length
+        });
+        next();
+      }
+    }else{
+      response.status(400).send({
+        'erro': 'alguma coisa'
+      });
+      next();
     }
-    progs2023 = dataArray.filter(item => item[7] == '2023');
-    console.log(progs2023.length);
-    response.status(200).send({
-      'quantidade': progs2023.length
-    });
-    next();
     // Perform further operations on the bidimensional array
   })
   .catch((error) => {
