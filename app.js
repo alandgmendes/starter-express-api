@@ -140,122 +140,124 @@ app.post("/programa/update", async(request, response, next) =>{
     timeZone: 'America/Sao_Paulo'
   };
   const fileUrl = 'https://repositorio.dados.gov.br/seges/detru/siconv_programa.csv.zip';
-async function fetchAndProcessCSV(url) {
-  try {
-    let now = new Date();
-    let formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
-    console.log(`${formattedDate}: - started fetching gov`);
-    let buff; 
-    await axios.get(fileUrl, {
-      responseType: 'arraybuffer'
-    })
-      .then((response) => {
-        buff = response.data;
-        // You can now use the buffer for further processing or operations
+  async function fetchAndProcessCSV(url) {
+    try {
+      let now = new Date();
+      let formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+      console.log(`${formattedDate}: - started fetching gov`);
+      let buff; 
+      await axios.get(fileUrl, {
+        responseType: 'arraybuffer'
       })
-      .catch((error) => {
-        console.error('An error occurred while fetching the file:', error);
-      });
-      console.log(buff);
-      console.log('buffereder');
-      console.log('>>>>>>>>>>>>>>>');
-      now = new Date();
-      formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
-      console.log(`${formattedDate}: - finished fetching`);
-      console.log(`${formattedDate}: - generating buffer`);
-      const zip = new AdmZip(buff);
-      const zipEntries = zip.getEntries();    
-      now = new Date();
-      formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
-      console.log(`${formattedDate}: - finished buffer`);
-  
-  
-      now = new Date();
-      formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
-      console.log(`${formattedDate}: - started parsing from buffer`);
-      let csvData;
-      for (const entry of zipEntries) {
-        if (entry.entryName.endsWith('.csv')) {
-          const entryData = await entry.getData();
-          if (entryData) {
-            console.log('entry data');
-            const chunkSize = 1024;
-            const totalChunks = Math.ceil(entryData.length / chunkSize);
-      
-            for (let i = 0; i < totalChunks; i++) {
-              const start = i * chunkSize;
-              const end = (i + 1) * chunkSize;
-              const chunk = entryData.slice(start, end);
-              csvData += chunk.toString('utf-8');
+        .then((response) => {
+          buff = response.data;
+          // You can now use the buffer for further processing or operations
+        })
+        .catch((error) => {
+          console.error('An error occurred while fetching the file:', error);
+        });
+        console.log(buff);
+        console.log('buffereder');
+        console.log('>>>>>>>>>>>>>>>');
+        now = new Date();
+        formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+        console.log(`${formattedDate}: - finished fetching`);
+        console.log(`${formattedDate}: - generating buffer`);
+        const zip = new AdmZip(buff);
+        const zipEntries = zip.getEntries();    
+        now = new Date();
+        formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+        console.log(`${formattedDate}: - finished buffer`);
+    
+    
+        now = new Date();
+        formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+        console.log(`${formattedDate}: - started parsing from buffer`);
+        let csvData;
+        for (const entry of zipEntries) {
+          if (entry.entryName.endsWith('.csv')) {
+            const entryData = await entry.getData();
+            if (entryData) {
+              console.log('entry data');
+              const chunkSize = 1024;
+              const totalChunks = Math.ceil(entryData.length / chunkSize);
+        
+              for (let i = 0; i < totalChunks; i++) {
+                const start = i * chunkSize;
+                const end = (i + 1) * chunkSize;
+                const chunk = entryData.slice(start, end);
+                csvData += chunk.toString('utf-8');
+              }
+              console.log(`tamanho csv: ${csvData.length}`);
+              console.log(`${formattedDate}: - finished parsing, turning to string`);
+              now = new Date();
+              formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+              console.log(`${formattedDate}: - finished string`);
+              break;
             }
-            console.log(`tamanho csv: ${csvData.length}`);
-            console.log(`${formattedDate}: - finished parsing, turning to string`);
-            now = new Date();
-            formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
-            console.log(`${formattedDate}: - finished string`);
-            break;
           }
         }
-      }
-      console.log('csv data');
-      console.log(csvData.length);
-    function parseCSV(csvString) {
-      now = new Date();
-      formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
-      console.log(`${formattedDate}: - started generating arrays`);
-      //split test
-      function splitStringByDelimiter(string, delimiter) {
-        const chunks = [];
-        let startIndex = 0;
-        console.log(`string size to split 1st: ${string.length}`);
-        console.log(string.indexOf(delimiter));
-        console.log('delimiter worked?');
-        let endIndex = string.indexOf(delimiter);
-        console.log('entered splitter function');
-        while (endIndex !== -1) {          
-          chunks.push(string.slice(startIndex, endIndex));
-          startIndex = endIndex + 1;
-          endIndex = string.indexOf(delimiter, startIndex);
-          if((endIndex > 2)&&( endIndex < 4)){
-            console.log(string.slice(startIndex, endIndex));
+        console.log('csv data');
+        console.log(csvData.length);
+        function parseCSV(csvString) {
+          now = new Date();
+          formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+          console.log(`${formattedDate}: - started generating arrays`);
+          //split test
+          function splitStringByDelimiter(string, delimiter) {
+            const chunks = [];
+            let startIndex = 0;
+            console.log(`string size to split 1st: ${string.length}`);
+            console.log(string.indexOf(delimiter));
+            console.log('delimiter worked?');
+            let endIndex = string.indexOf(delimiter);
+            console.log('entered splitter function');
+            while (endIndex !== -1) {          
+              chunks.push(string.slice(startIndex, endIndex));
+              startIndex = endIndex + 1;
+              endIndex = string.indexOf(delimiter, startIndex);
+              if((endIndex > 2)&&( endIndex < 4)){
+                console.log(string.slice(startIndex, endIndex));
+              }
+            }
+            
+            
+            console.log(`ended splitting. chuncks = ${chunks.length}`);
+    
+            if (startIndex < string.length) {
+              chunks.push(string.slice(startIndex));
+            }      
+            return chunks;
           }
-        }
-        
-        
-        console.log(`ended splitting. chuncks = ${chunks.length}`);
+          
+          const longString = "Your very long string here...";
+          const delimiter = "\n";
+          console.log(`csvsting size to function: ${csvString.length}`);
+          const stringChunks = splitStringByDelimiter(csvString, delimiter);
+          //
+          console.log(`stringchunks size: {${stringChunks.length}}`);
+          const rows = stringChunks;
+          console.log(`rows size: ${rows.length}`);
+          let result = [];
+          
+          for (const row of rows) {
+            const columns = row.split(';');
+            result.push(columns);
+          }      
+          now = new Date();
+          formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
 
-        if (startIndex < string.length) {
-          chunks.push(string.slice(startIndex));
-        }      
-        return chunks;
-      }
-      
-      const longString = "Your very long string here...";
-      const delimiter = "\n";
-      console.log(`csvsting size to function: ${csvString.length}`);
-      const stringChunks = splitStringByDelimiter(csvString, delimiter);
-      //
-      console.log(`stringchunks size: {${stringChunks.length}}`);
-      const rows = stringChunks;
-      console.log(`rows size: ${rows.length}`);
-      const result = [];
-      
-      for (const row of rows) {
-        const columns = row.split(';');
-        result.push(columns);
-      }      
-      now = new Date();
-      formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
-      console.log(`${formattedDate}: - finished generating arrays`);
-      return result;
+          console.log(`resul size: ${result.length}`);
+          console.log(`${formattedDate}: - finished generating arrays`);
+          return result;
+        }
+        const data = parseCSV(csvData);
+      return data;
+      // Perform further processing with the CSV data...
+    } catch (error) {
+      console.error('An error occurred:', error.message);
     }
-    const data = parseCSV(csvData);
-    return data;
-    // Perform further processing with the CSV data...
-  } catch (error) {
-    console.error('An error occurred:', error.message);
   }
-}
 
 fetchAndProcessCSV(fileUrl)
   .then((dataArray) => {
@@ -379,6 +381,59 @@ fetchCSVBuffer(fileUrl)
       }
       console.log('csv data');
       console.log(csvData.length);
+
+      function parseCSV(csvString) {
+        now = new Date();
+        formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+        console.log(`${formattedDate}: - started generating arrays`);
+        //split test
+        function splitStringByDelimiter(string, delimiter) {
+          const chunks = [];
+          let startIndex = 0;
+          console.log(`string size to split 1st: ${string.length}`);
+          console.log(string.indexOf(delimiter));
+          console.log('delimiter worked?');
+          let endIndex = string.indexOf(delimiter);
+          console.log('entered splitter function');
+          while (endIndex !== -1) {          
+            chunks.push(string.slice(startIndex, endIndex));
+            startIndex = endIndex + 1;
+            endIndex = string.indexOf(delimiter, startIndex);
+            if((endIndex > 2)&&( endIndex < 4)){
+              console.log(string.slice(startIndex, endIndex));
+            }
+          }
+          
+          
+          console.log(`ended splitting. chuncks = ${chunks.length}`);
+  
+          if (startIndex < string.length) {
+            chunks.push(string.slice(startIndex));
+          }      
+          return chunks;
+        }
+        
+        const longString = "Your very long string here...";
+        const delimiter = "\n";
+        console.log(`csvsting size to function: ${csvString.length}`);
+        const stringChunks = splitStringByDelimiter(csvString, delimiter);
+        //
+        console.log(`stringchunks size: {${stringChunks.length}}`);
+        const rows = stringChunks;
+        console.log(`rows size: ${rows.length}`);
+        const result = [];
+        
+        for (const row of rows) {
+          const columns = row.split(';');
+          result.push(columns);
+        }      
+        now = new Date();
+        formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+        console.log(`${formattedDate}: - finished generating arrays`);
+        console.log(`resultlength ${result.length}`)
+        return result;
+      }
+      const data = parseCSV(csvData);
   })
   .catch((error) => {
     console.error('An error occurred:', error);
