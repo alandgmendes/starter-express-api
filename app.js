@@ -414,7 +414,7 @@ fetchCSVBuffer(fileUrl)
         }
         
         const longString = "Your very long string here...";
-        const delimiter = "\n";
+        const delimiter = "t";
         console.log(`csvsting size to function: ${csvString.length}`);
         const stringChunks = splitStringByDelimiter(csvString, delimiter);
         //
