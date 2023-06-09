@@ -155,7 +155,6 @@ async function fetchAndProcessCSV(url) {
       responseType: 'arraybuffer'
     })
       .then((response) => {
-        console.log(response);
         buff = response.data;
         // You can now use the buffer for further processing or operations
       })
@@ -229,12 +228,12 @@ async function fetchAndProcessCSV(url) {
       }
       
       const longString = "Your very long string here...";
-      const delimiter = ";";
+      const delimiter = "\n";
       
-      const stringChunks = splitStringByDelimiter(longString, delimiter);
+      const stringChunks = splitStringByDelimiter(csvString, delimiter);
       //
       console.log(`stringchunks size: {${stringChunks.length}}`);
-      const rows = csvString.split('\n');
+      const rows = stringChunks;
       console.log(`rows size: ${rows.length}`);
       const result = [];
       
