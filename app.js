@@ -164,27 +164,7 @@ async function fetchAndProcessCSV(url) {
     formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
     console.log(`${formattedDate}: - finished buffer`);
 
-    //buffertest
-    function sliceBufferToString(buffer, start, end) {
-      const slicedBuffer = buffer.slice(start, end);
-      return slicedBuffer.toString();
-    }
-    
-    function sliceAndRejoinBuffer(buffer, chunkSize) {
-      const slicedParts = [];
-      const totalChunks = Math.ceil(buffer.length / chunkSize);
-    
-      for (let i = 0; i < totalChunks; i++) {
-        const start = i * chunkSize;
-        const end = start + chunkSize;
-        const slicedString = sliceBufferToString(buffer, start, end);
-        slicedParts.push(slicedString);
-      }
-    
-      return slicedParts.join('');
-    }
 
-    //buffertest
     now = new Date();
     formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
     console.log(`${formattedDate}: - started parsing from buffer`);
@@ -194,11 +174,20 @@ async function fetchAndProcessCSV(url) {
         const entryData = await entry.getData();
         if (entryData) {
           console.log('entry data');
-          const chunkSize = 1024; 
-          console.log(`buffer size: ${entryData.length}`);
-          const rejoinString = entryData.toString('utf-8');
+          const chunkSize = 1024;
+          const totalChunks = Math.ceil(entryData.length / chunkSize);
+          let csvData = '';
+    
+          for (let i = 0; i < totalChunks; i++) {
+            const start = i * chunkSize;
+            const end = (i + 1) * chunkSize;
+            const chunk = entryData.slice(start, end);
+            csvData += chunk.toString('utf-8');
+            console.log(csvData);
+            console.log(`chunck ${i} de 1024`);
+          }
+    
           console.log(`${formattedDate}: - finished parsing, turning to string`);
-          csvData = rejoinString;
           now = new Date();
           formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
           console.log(`${formattedDate}: - finished string`);
@@ -206,7 +195,6 @@ async function fetchAndProcessCSV(url) {
         }
       }
     }
-
     if (!csvData) {
       throw new Error('No CSV file found inside the zip archive');
     }
@@ -234,8 +222,6 @@ async function fetchAndProcessCSV(url) {
   }
 }
 
-// Example usage
-const url = 'https://example.com/file.zip';
 fetchAndProcessCSV(fileUrl)
   .then((dataArray) => {
     for (let i = 0; i < 3; i++){
