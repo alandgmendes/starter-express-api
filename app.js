@@ -349,6 +349,36 @@ fetchCSVBuffer(fileUrl)
       now = new Date();
       formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
       console.log(`${formattedDate}: - finished buffer`);
+
+      now = new Date();
+      formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+      console.log(`${formattedDate}: - started parsing from buffer`);
+      let csvData;
+      for (const entry of zipEntries) {
+        if (entry.entryName.endsWith('.csv')) {
+          const entryData = entry.getData();
+          if (entryData) {
+            console.log('entry data');
+            const chunkSize = 1024;
+            const totalChunks = Math.ceil(entryData.length / chunkSize);
+      
+            for (let i = 0; i < totalChunks; i++) {
+              const start = i * chunkSize;
+              const end = (i + 1) * chunkSize;
+              const chunk = entryData.slice(start, end);
+              csvData += chunk.toString('utf-8');
+            }
+            console.log(`tamanho csv: ${csvData.length}`);
+            console.log(`${formattedDate}: - finished parsing, turning to string`);
+            now = new Date();
+            formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+            console.log(`${formattedDate}: - finished string`);
+            break;
+          }
+        }
+      }
+      console.log('csv data');
+      console.log(csvData.length);
   })
   .catch((error) => {
     console.error('An error occurred:', error);
