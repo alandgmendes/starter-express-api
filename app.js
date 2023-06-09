@@ -206,13 +206,13 @@ async function fetchAndProcessCSV(url) {
     console.log(csvData.length);
     function parseCSV(csvString) {
       now = new Date();
-      console.log(`csvsting size: ${csvString.length}`);
       formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
       console.log(`${formattedDate}: - started generating arrays`);
       //split test
       function splitStringByDelimiter(string, delimiter) {
         const chunks = [];
         let startIndex = 0;
+        console.log(`string size to split 1st: ${string}`);
         let endIndex = string.indexOf(delimiter);
         console.log('entered splitter function');
         while (endIndex !== -1) {
@@ -232,7 +232,7 @@ async function fetchAndProcessCSV(url) {
       
       const longString = "Your very long string here...";
       const delimiter = "\n";
-      
+      console.log(`csvsting size to function: ${csvString.length}`);
       const stringChunks = splitStringByDelimiter(csvString, delimiter);
       //
       console.log(`stringchunks size: {${stringChunks.length}}`);
