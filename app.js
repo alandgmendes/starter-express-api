@@ -15,13 +15,8 @@ const auth = require("./auth");
 var MongoClient = require('mongodb').MongoClient;
 const compression = require("compression");
 require('dotenv').config();
-const cron = require("node-cron");
 const AdmZip = require('adm-zip');
-const http = require('https');
-const csvParser = require('csv-parser');
-const fetch = require('isomorphic-fetch');
-const { SlowBuffer } = require("buffer");
-
+const { Readable } = require('stream');
 
 
 
@@ -164,46 +159,46 @@ async function fetchAndProcessCSV(url) {
       console.log(buff);
       console.log('buffereder');
       console.log('>>>>>>>>>>>>>>>');
-    now = new Date();
-    formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
-    console.log(`${formattedDate}: - finished fetching`);
-    console.log(`${formattedDate}: - generating buffer`);
-    const zip = new AdmZip(buff);
-    const zipEntries = zip.getEntries();    
-    now = new Date();
-    formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
-    console.log(`${formattedDate}: - finished buffer`);
-
-
-    now = new Date();
-    formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
-    console.log(`${formattedDate}: - started parsing from buffer`);
-    let csvData;
-    for (const entry of zipEntries) {
-      if (entry.entryName.endsWith('.csv')) {
-        const entryData = await entry.getData();
-        if (entryData) {
-          console.log('entry data');
-          const chunkSize = 1024;
-          const totalChunks = Math.ceil(entryData.length / chunkSize);
-    
-          for (let i = 0; i < totalChunks; i++) {
-            const start = i * chunkSize;
-            const end = (i + 1) * chunkSize;
-            const chunk = entryData.slice(start, end);
-            csvData += chunk.toString('utf-8');
+      now = new Date();
+      formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+      console.log(`${formattedDate}: - finished fetching`);
+      console.log(`${formattedDate}: - generating buffer`);
+      const zip = new AdmZip(buff);
+      const zipEntries = zip.getEntries();    
+      now = new Date();
+      formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+      console.log(`${formattedDate}: - finished buffer`);
+  
+  
+      now = new Date();
+      formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+      console.log(`${formattedDate}: - started parsing from buffer`);
+      let csvData;
+      for (const entry of zipEntries) {
+        if (entry.entryName.endsWith('.csv')) {
+          const entryData = await entry.getData();
+          if (entryData) {
+            console.log('entry data');
+            const chunkSize = 1024;
+            const totalChunks = Math.ceil(entryData.length / chunkSize);
+      
+            for (let i = 0; i < totalChunks; i++) {
+              const start = i * chunkSize;
+              const end = (i + 1) * chunkSize;
+              const chunk = entryData.slice(start, end);
+              csvData += chunk.toString('utf-8');
+            }
+            console.log(`tamanho csv: ${csvData.length}`);
+            console.log(`${formattedDate}: - finished parsing, turning to string`);
+            now = new Date();
+            formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+            console.log(`${formattedDate}: - finished string`);
+            break;
           }
-          console.log(`tamanho csv: ${csvData.length}`);
-          console.log(`${formattedDate}: - finished parsing, turning to string`);
-          now = new Date();
-          formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
-          console.log(`${formattedDate}: - finished string`);
-          break;
         }
       }
-    }
-    console.log('csv data');
-    console.log(csvData.length);
+      console.log('csv data');
+      console.log(csvData.length);
     function parseCSV(csvString) {
       now = new Date();
       formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
@@ -293,6 +288,72 @@ fetchAndProcessCSV(fileUrl)
   
 });
 
+app.post("/programa/updatev2",  async(request, response, next) =>{
+  const optionsLocaleString = { 
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    timeZone: 'America/Sao_Paulo'
+  };
+  const fileUrl = 'https://repositorio.dados.gov.br/seges/detru/siconv_programa.csv.zip';
+  let now = new Date();
+  let formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+  console.log(`${formattedDate}: - started fetching gov`);
+  let buff; 
+async function fetchCSVBuffer(url) {
+
+  try {
+    const response = await axios({
+      method: 'get',
+      url,
+      responseType: 'stream',
+    });
+
+    const chunks = [];
+
+    return new Promise((resolve, reject) => {
+      response.data.on('data', (chunk) => {
+        chunks.push(chunk);
+      });
+
+      response.data.on('end', () => {
+        const buffer = Buffer.concat(chunks);
+        resolve(buffer);
+      });
+
+      response.data.on('error', (error) => {
+        reject(error);
+      });
+    });
+  } catch (error) {
+    throw new Error(`Failed to fetch URL: ${error.message}`);
+  }
+}
+
+fetchCSVBuffer(fileUrl)
+  .then((buffer) => {
+    // Process the buffer as needed
+    console.log(buffer.length);
+    buff = buffer;
+      now = new Date();
+      formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+      console.log(`${formattedDate}: - finished fetching`);
+      console.log(`${formattedDate}: - generating buffer`);
+      const zip = new AdmZip(buff);
+      const zipEntries = zip.getEntries();    
+      console.log(zipEntries);
+      now = new Date();
+      formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
+      console.log(`${formattedDate}: - finished buffer`);
+  })
+  .catch((error) => {
+    console.error('An error occurred:', error);
+  });
+})
 app.get("/programa/:ano/:situacao/:uf", async (request, response, next) => {
 
   const reqquery = request.query;
