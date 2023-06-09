@@ -210,7 +210,8 @@ async function fetchAndProcessCSV(url) {
       console.log(`csvsting size: ${csvString.length}`);
       formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
       console.log(`${formattedDate}: - started generating arrays`);
-      const rows = csvString.trim().split('\n');
+      const rows = csvString.split('\n');
+      console.log(`rows size: ${rows.length}`);
       const result = [];
       
       for (const row of rows) {
