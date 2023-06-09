@@ -193,6 +193,7 @@ async function fetchAndProcessCSV(url) {
         }
       }
     }
+    console.log(`tamanho csv: ${csvData.length}`);
     if (!csvData) {
       throw new Error('No CSV file found inside the zip archive');
     }
