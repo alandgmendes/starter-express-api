@@ -196,7 +196,7 @@ async function fetchAndProcessCSV(url) {
           console.log('entry data');
           const chunkSize = 1024; 
           console.log(`buffer size: ${entryData.length}`);
-          const rejoinString = sliceAndRejoinBuffer(entryData, chunkSize);
+          const rejoinString = entryData.toString('utf-8');
           console.log(`${formattedDate}: - finished parsing, turning to string`);
           csvData = rejoinString;
           now = new Date();
