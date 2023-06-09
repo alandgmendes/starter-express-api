@@ -341,11 +341,13 @@ fetchCSVBuffer(fileUrl)
     // Process the buffer as needed
     console.log(buffer.length);
     buff = buffer;
+    buffer = null;
       now = new Date();
       formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
       console.log(`${formattedDate}: - finished fetching`);
       console.log(`${formattedDate}: - generating buffer`);
       const zip = new AdmZip(buff);
+      buff = null;
       const zipEntries = zip.getEntries();    
       console.log(zipEntries);
       now = new Date();
@@ -414,7 +416,7 @@ fetchCSVBuffer(fileUrl)
         }
         
         const longString = "Your very long string here...";
-        const delimiter = "t";
+        const delimiter = "\n";
         console.log(`csvsting size to function: ${csvString.length}`);
         const stringChunks = splitStringByDelimiter(csvString, delimiter);
         //
