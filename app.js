@@ -203,7 +203,8 @@ async function fetchAndProcessCSV(url) {
         }
       }
     }
-    
+    console.log('csv data');
+    console.log(csvData);
     function parseCSV(csvString) {
       now = new Date();
       formattedDate = now.toLocaleString('pt-BR', optionsLocaleString);
