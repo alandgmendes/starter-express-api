@@ -221,6 +221,7 @@ async function fetchAndProcessCSV(url) {
           endIndex = string.indexOf(delimiter, startIndex);
         }
         
+        
         console.log(`ended splitting. chuncks = ${chunks.length}`);
 
         if (startIndex < string.length) {
