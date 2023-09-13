@@ -441,6 +441,82 @@ fetchCSVBuffer(fileUrl)
     console.error('An error occurred:', error);
   });
 })
+
+app.post("/programa/updatev3", async (request, response, next) => {
+  const optionsLocaleString = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    timeZone: 'America/Sao_Paulo'
+  };
+
+  const fileUrl = 'https://repositorio.dados.gov.br/seges/detru/siconv_programa.csv.zip';
+
+  console.log(`${getCurrentDateTime()}: - started fetching gov`);
+
+  async function fetchCSVBuffer(url) {
+    try {
+      const response = await axios({
+        method: 'get',
+        url,
+        responseType: 'stream',
+      });
+
+      return new Promise((resolve, reject) => {
+        const chunks = [];
+        response.data.on('data', (chunk) => {
+          processCSVChunk(chunk.toString('utf-8'));
+          chunks.push(chunk);
+        });
+
+        response.data.on('end', () => {
+          response.data.removeAllListeners('data');
+          response.data.removeAllListeners('end');
+          response.data.removeAllListeners('error');
+          response.data.destroy();
+          resolve();
+        });
+
+        response.data.on('error', (error) => {
+          response.data.removeAllListeners('data');
+          response.data.removeAllListeners('end');
+          response.data.removeAllListeners('error');
+          response.data.destroy();
+          reject(error);
+        });
+      });
+    } catch (error) {
+      throw new Error(`Failed to fetch URL: ${error.message}`);
+    }
+  }
+
+  function processCSVChunk(chunk) {
+    // Process the chunk as needed
+    console.log(`${getCurrentDateTime()}: - processing CSV chunk`);
+    const rows = chunk.split('\n');
+    for (const row of rows) {
+      const columns = row.split(';');
+      console.log(row);
+      // Process the columns of each row
+    }
+  }
+
+  try {
+    await fetchCSVBuffer(fileUrl);
+    console.log(`${getCurrentDateTime()}: - finished fetching and processing CSV`);
+  } catch (error) {
+    console.error('An error occurred:', error);
+  }
+  function getCurrentDateTime() {
+    return new Date().toLocaleString('pt-BR', optionsLocaleString);
+  }
+});
+
+
 app.get("/programa/:ano/:situacao/:uf", async (request, response, next) => {
 
   const reqquery = request.query;
